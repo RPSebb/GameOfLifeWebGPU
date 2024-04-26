@@ -1,29 +1,28 @@
+let adapter, device;
+try {
+    adapter = await navigator.gpu.requestAdapter();
+    device  = await adapter.requestDevice();
+} catch (error) {
+    const err = document.createElement("p");
+    err.innerText = "WebGPU not available on this browser.";
+    document.body.appendChild(err);
+    throw error;
+}
+
 const vertWGSL    = await fetch("./shaders/vert.wgsl"   ).then((value) => value.text());
 const fragWGSL    = await fetch("./shaders/frag.wgsl"   ).then((value) => value.text());
 const computeWGSL = await fetch("./shaders/compute.wgsl").then((value) => value.text());
 
-const canvas = document.createElement("canvas");
 const context = canvas.getContext("webgpu");
-const canvasSize = 2048;
-const UPDATE_INTERVAL = 1000 / 144;
-const GRID_SIZE = 1024;
+const canvasSize = 1080;
+const UPDATE_INTERVAL = 1000 / 60;
+const GRID_SIZE = 256;
 const WORKGROUP_SIZE = 16;
 
+const canvas = document.createElement("canvas");
 canvas.setAttribute("width" , canvasSize);
 canvas.setAttribute("height", canvasSize);
 document.body.appendChild(canvas);
-
-if(!navigator.gpu) {
-    throw new Error("WebGPU not supported on this browser.");
-}
-
-const adapter = await navigator.gpu.requestAdapter();
-
-if(!adapter) {
-    throw new Error("No appropriate GPUAdpater found.");
-}
-
-const device = await adapter.requestDevice();
 
 const canvasFormat = navigator.gpu.getPreferredCanvasFormat();
 context.configure({
